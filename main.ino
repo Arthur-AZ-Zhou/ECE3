@@ -17,7 +17,7 @@ uint16_t sensorValuesWhite[5][8];
 uint16_t sensorValues[8];
 uint16_t sensorValuesave[8];
 float fusion;
-int base = 70;
+int base = 30;
 float kP = 0.052;
 float kD = .745;
 float pastError = 0;
@@ -74,7 +74,7 @@ void loop() {
     float rightSpd = base;
     
     if (digitalRead(left_bump0) == 0 || digitalRead(left_bump1) == 0 || digitalRead(left_bump2) == 0 || digitalRead(left_bump3) == 0 || digitalRead(left_bump4) == 0 || digitalRead(left_bump5) == 0) {
-        analogWrite(left_pwm_pin,0);
+        analogWrite(left_pwm_pin, 0);
         analogWrite(right_pwm_pin, 0);
         delay(10000000000000000000);
     }
@@ -82,17 +82,17 @@ void loop() {
     ECE3_read_IR(sensorValues);
     
     for (int i = 0; i < 8; i++) {
-        if(sensorValues[i] < sensorValuesave[i]){
+        if (sensorValues[i] < sensorValuesave[i]){
           sensorValues[i] = 0;
         } else {
           sensorValues[i] = sensorValues[i] - sensorValuesave[i];
         }
 
-        sensorValues[i] = (sensorValues[i] * 1000.0)/2500;
+        sensorValues[i] = (sensorValues[i] * 1000.0) / 2500;
     }
 
     if (detectTurnBar()) {
-        if(hasTurned == true) {
+        if (hasTurned == true) {
             ChangeWheelSpeeds(base, 0, base, 0);
             delay(10000000000000000);
         } else if (!check1) {
@@ -106,36 +106,35 @@ void loop() {
         check1 = false; 
     }
   
-    fusion = (-7.5 * sensorValues[0] - 7 * sensorValues[1] - 6 * sensorValues[2] - 1 * sensorValues[3] + 1 * sensorValues[4] + 6 * sensorValues[5] + 7 * sensorValues[6] + 7.5 * sensorValues[7]) / 4; 
+    fusion = (-8 * sensorValues[0] - 4 * sensorValues[1] - 2 * sensorValues[2] - 1 * sensorValues[3] + 1 * sensorValues[4] + 2 * sensorValues[5] + 4 * sensorValues[6] + 8 * sensorValues[7]) / 4; 
     //Serial.println(fusion);
  
     float correction = kP * fusion + kD * (fusion - pastError);
 
-
-    if (sensorValues[0] >= (sensorValues[1] + sensorValues[2] + sensorValues[3] + sensorValues[4] + sensorValues[5] + sensorValues[6] + sensorValues[7]) || 
-        sensorValues[7] >= (sensorValues[1] + sensorValues[2] + sensorValues[3] + sensorValues[4] + sensorValues[5] + sensorValues[0] + sensorValues[6])) {
-        correction *= 255;
-    }
+    // if (sensorValues[0] >= (sensorValues[1] + sensorValues[2] + sensorValues[3] + sensorValues[4] + sensorValues[5] + sensorValues[6] + sensorValues[7]) || 
+    //     sensorValues[7] >= (sensorValues[1] + sensorValues[2] + sensorValues[3] + sensorValues[4] + sensorValues[5] + sensorValues[0] + sensorValues[6])) {
+    //     correction *= 255;
+    // }
 
     leftSpd -= correction;
     rightSpd += correction;
 
 
     //if correction too high
-    if (leftSpd > 255){
+    if (leftSpd > 255) {
         leftSpd = 255;
     }
   
-    if (rightSpd > 255){
+    if (rightSpd > 255) {
         rightSpd = 255;    
     }
 
     //if correction too low
-    if (leftSpd < 0){
+    if (leftSpd < 0) {
         leftSpd = 0;
     }
   
-    if (rightSpd < 0){
+    if (rightSpd < 0) {
         rightSpd = 0;    
     }
 
@@ -145,7 +144,7 @@ void loop() {
     pastError = fusion;
 }
 
-void turnAround(){
+void turnAround() {
     ChangeWheelSpeeds(base, 0, base, 0);
     
     digitalWrite(left_dir_pin, LOW);
@@ -159,14 +158,14 @@ void turnAround(){
     digitalWrite(right_dir_pin, LOW);
 }
 
-bool detectTurnBar(){
+bool detectTurnBar() {
     int num = 0;
     
-    for(int i = 0; i < 8; i++){
+    for (int i = 0; i < 8; i++) {
         num += sensorValues[i];  
     }
     
-    if (num > 4000){
+    if (num > 4000) {
         return true;
     }
     
